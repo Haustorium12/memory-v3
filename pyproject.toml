@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "memory-v3"
+version = "1.0.0"
+description = "Next-generation brain-inspired persistent memory for AI coding assistants"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Sean Pembroke" },
+]
+dependencies = [
+    "fastmcp>=2.0",
+    "numpy>=1.24",
+    "networkx>=3.0",
+    "ollama>=0.4",
+    "sqlite-vec>=0.1",
+]
+
+[project.optional-dependencies]
+graph = ["python-igraph>=0.11", "leidenalg>=0.10", "pyvis>=0.3"]
+dev = ["pytest>=8.0", "pytest-cov", "ruff"]
+all = ["memory-v3[graph,dev]"]
+
+[project.scripts]
+memory-v3 = "memory_v3.cli:main"
+memory-v3-server = "memory_v3.server:run"
+memory-v3-build-kg = "memory_v3.build_kg:main"
+memory-v3-migrate = "memory_v3.migration:main"
+
+[project.urls]
+Homepage = "https://github.com/Haustorium12/memory-v3"
+"Predecessor (v2)" = "https://github.com/Haustorium12/memory-v2"
+"Original (v1)" = "https://github.com/Haustorium12/claude-memory"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
