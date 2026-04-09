@@ -748,9 +748,30 @@ def reindex(force: bool = False) -> str:
         if not force:
             row = conn.execute(
                 "SELECT content_hash FROM file_hashes WHERE file_path = ?",
-                (str(md_file),),
+                (rel_path,),
             ).fetchone()
             if row and (row["content_hash"] if isinstance(row, dict) else row[0]) == content_hash:
+                skipped += 1
+                continue
+
+            # Safety net: if any memory already exists for this source_file,
+            # skip it. Prevents duplicate ingestion when file_hashes table is
+            # missing entries (e.g. post-migration).
+            existing = conn.execute(
+                "SELECT 1 FROM memories WHERE source_file = ? LIMIT 1",
+                (rel_path,),
+            ).fetchone()
+            if existing:
+                # Backfill the file_hashes entry so future runs skip fast
+                conn.execute(
+                    """INSERT INTO file_hashes (file_path, content_hash, indexed_at, chunk_count)
+                    VALUES (?, ?, ?, 1)
+                    ON CONFLICT(file_path) DO UPDATE SET
+                        content_hash = excluded.content_hash,
+                        indexed_at = excluded.indexed_at""",
+                    (rel_path, content_hash, _now_iso()),
+                )
+                conn.commit()
                 skipped += 1
                 continue
 
@@ -763,7 +784,7 @@ def reindex(force: bool = False) -> str:
 
             db.add_memory(
                 conn, content=content[:5000], embedding=embedding,
-                content_type=ct, source_file=str(md_file), author="indexer",
+                content_type=ct, source_file=rel_path, author="indexer",
                 tags=tags, governance_layer=gov,
                 source_hash=content_hash,
             )
@@ -775,7 +796,7 @@ def reindex(force: bool = False) -> str:
                 ON CONFLICT(file_path) DO UPDATE SET
                     content_hash = excluded.content_hash,
                     indexed_at = excluded.indexed_at""",
-                (str(md_file), content_hash, _now_iso()),
+                (rel_path, content_hash, _now_iso()),
             )
             conn.commit()
             indexed += 1

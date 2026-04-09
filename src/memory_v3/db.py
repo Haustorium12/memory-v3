@@ -37,7 +37,7 @@ def get_connection(db_path: str | None = None) -> sqlite3.Connection:
     if db_path is None:
         db_path = get_config().db_path
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
-    conn = sqlite3.connect(db_path, timeout=10)
+    conn = sqlite3.connect(db_path, timeout=10, check_same_thread=False)
     conn.enable_load_extension(True)
     sqlite_vec.load(conn)
     conn.enable_load_extension(False)

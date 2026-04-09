@@ -243,7 +243,7 @@ def cmd_link(args):
 def cmd_build_kg(args):
     """Build multi-graph knowledge graph from vault."""
     from .build_kg import build_knowledge_graph
-    result = build_knowledge_graph(force=args.force)
+    result = build_knowledge_graph(force=args.force, backend=args.backend)
     _pp(result)
 
 
@@ -394,6 +394,8 @@ def build_parser() -> argparse.ArgumentParser:
     # --- build-kg ---
     p = sub.add_parser("build-kg", help="Build multi-graph knowledge graph from vault")
     p.add_argument("--force", action="store_true", help="Force full rebuild")
+    p.add_argument("--backend", choices=["ollama", "anthropic"], default="ollama",
+                   help="LLM backend: ollama (local) or anthropic (API, fast bulk)")
 
     # --- serve ---
     sub.add_parser("serve", help="Run the MCP server")

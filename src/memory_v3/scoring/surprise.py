@@ -115,8 +115,8 @@ def update_centroids(
 
         cursor.execute(
             """
-            INSERT INTO cluster_centroids (cluster_id, centroid_embedding, member_count, updated_at)
-            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+            INSERT INTO cluster_centroids (cluster_id, centroid_embedding, member_count, created_at, updated_at)
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             ON CONFLICT(cluster_id) DO UPDATE SET
                 centroid_embedding = excluded.centroid_embedding,
                 member_count = excluded.member_count,
