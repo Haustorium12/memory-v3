@@ -25,7 +25,7 @@
 | Retrieval pipeline | Vector only | Vector + keyword | Vector | Hybrid (BM25 + vec) | **3-stage** (coarse -> fine -> organize) |
 | Cognitive scoring | -- | -- | -- | ACT-R + FadeMem | ACT-R + FadeMem + **surprise + fan effect** |
 | Governance hierarchy | -- | -- | -- | Protected flag | **4-tier constitutional** (decay/archive per layer) |
-| Hallucination detection | -- | -- | -- | -- | **HaluMem** (confidence decay + source verification) |
+| Source verification | -- | -- | -- | -- | **HaluMem** (SHA-256 source-hash check + confidence decay) |
 | Memory consolidation | -- | -- | -- | -- | **4-phase sleep** (replay/reorganize/compress/prune) |
 | Intake filtering | -- | -- | Partial | Dedup only | **6-gate sensory filter** |
 | Self-linking | -- | -- | -- | -- | **Zettelkasten** (auto bidirectional, cosine > 0.5) |
@@ -120,7 +120,7 @@ extraction (qwen2.5:3b), requiring zero cloud API keys, and totals approximately
     | credential scan  |  | SQLite |  | 3-Stage   |  | extraction    |
     | exact dedup      |  | + vec0 |  | Retrieval |  | consolidation |
     | near dedup       |  | + FTS5 |  |           |  | compaction    |
-    | surprise score   |  | + WAL  |  | Stage 1:  |  | hallucination |
+    | surprise score   |  | + WAL  |  | Stage 1:  |  | verification  |
     | topic cluster    |  +---+----+  |  Coarse   |  | decay sweep   |
     | length check     |      |       | Stage 2:  |  +---------------+
     +------------------+      |       |  Fine     |
@@ -704,7 +704,14 @@ FadeMem importance.
 **Gate 6 -- Topic clustering:** Assigns the content to its nearest cluster
 centroid. This assignment propagates to the memory's `cluster_id` column.
 
-### HaluMem Hallucination Detection (lifecycle/hallucination.py)
+### HaluMem Source Verification & Confidence Decay (lifecycle/hallucination.py)
+
+> **Note (2026-04-25):** This section was previously titled "Hallucination Detection."
+> What ships in v3 is source-file verification (SHA-256 hash comparison) plus flat
+> confidence decay for unverified memories -- it detects staleness, not the
+> retrieval-time claim drift that name implied. An LLM-as-judge variant was tried
+> in an earlier branch and pulled due to false-positive rate on small local models.
+> Claim-vs-source verification is on the v4 roadmap.
 
 HaluMem addresses the problem of unverified memories accumulating false
 confidence over time.
@@ -1042,7 +1049,7 @@ All feature flags follow the pattern `MEMORY_V3_ENABLE_*` and accept
 | `ENABLE_SURPRISE` | `true` | Titans surprise scoring |
 | `ENABLE_FAN_EFFECT` | `true` | ACT-R fan penalty |
 | `ENABLE_THREE_STAGE` | `true` | 3-stage retrieval pipeline |
-| `ENABLE_HALUMEM` | `true` | Hallucination detection |
+| `ENABLE_HALUMEM` | `true` | Source verification & decay |
 | `ENABLE_HIERARCHY` | `true` | Constitutional governance |
 | `ENABLE_CONSOLIDATION` | `true` | Sleep consolidation |
 | `ENABLE_ASYNC` | `true` | Async write queue |
@@ -1180,7 +1187,7 @@ memory-v3 is the third generation of the memory system:
 3. **3-Stage Retrieval Pipeline** -- Coarse/fine/organize replacing flat hybrid search
 4. **ACT-R Cognitive Scoring** -- Enhanced with fan effect and governance-aware floors
 5. **FadeMem with Surprise** -- 4-weight importance with Titans-inspired novelty signal
-6. **HaluMem Hallucination Detection** -- Confidence decay for unverified memories
+6. **HaluMem Source Verification** -- SHA-256 source-hash check + confidence decay for unverified memories
 7. **Zettelkasten Self-Linking** -- Auto bidirectional links via cosine similarity
 8. **Sensory Gate** -- 6-gate intake filter before any LLM processing
 9. **Sleep Consolidation** -- 4-phase biological memory consolidation
