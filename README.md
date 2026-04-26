@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python 3.10+"></a>
-  <a href="https://pypi.org/project/memory-v3/"><img src="https://img.shields.io/badge/pypi-v1.0.0-orange.svg" alt="PyPI"></a>
+  <a href="https://pypi.org/project/memory-v3-hx/"><img src="https://img.shields.io/badge/pypi-memory--v3--hx-orange.svg" alt="PyPI"></a>
   <a href="#mcp-server-and-tools"><img src="https://img.shields.io/badge/MCP%20tools-24-green.svg" alt="24 MCP Tools"></a>
   <a href="#multi-graph-architecture"><img src="https://img.shields.io/badge/graphs-4%20layers-purple.svg" alt="4 Graph Layers"></a>
 </p>
@@ -16,6 +16,10 @@
 ---
 
 ## Why memory-v3?
+
+```bash
+pip install memory-v3-hx
+```
 
 | Feature | mem0 | Zep | LangMem | **memory-v2** | **memory-v3** |
 |---|---|---|---|---|---|
